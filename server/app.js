@@ -170,6 +170,9 @@ app.post("/stt", upload.single("file"), async (req, res) => {
 app.post("/api/generate", async (req, res) => {
   try {
     const { text, systemPrompt } = req.body || {};
+    if (!text || (typeof text === "string" && !text.trim())) {
+      return res.json({ output: "Mavzudan chiqildi" });
+    }
     const output = await generateWithGemini({ text, systemPrompt });
     res.json({ output });
   } catch (err) {
@@ -182,6 +185,9 @@ app.post("/api/generate", async (req, res) => {
 app.post("/generate", async (req, res) => {
   try {
     const { text, systemPrompt } = req.body || {};
+    if (!text || (typeof text === "string" && !text.trim())) {
+      return res.json({ output: "Mavzudan chiqildi" });
+    }
     const output = await generateWithGemini({ text, systemPrompt });
     res.json({ output });
   } catch (err) {
