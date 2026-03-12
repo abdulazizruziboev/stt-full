@@ -3,8 +3,6 @@ import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
-import axios from "axios";
-import FormData from "form-data";
 import multer from "multer";
 import { GoogleGenAI } from "@google/genai";
 
@@ -43,10 +41,10 @@ async function transcribeWithUzbekvoice({ file, options = {} }) {
   }
 
   const form = new FormData();
-  form.append("file", file.buffer, {
-    filename: file.originalname || "audio.wav",
-    contentType: file.mimetype || "application/octet-stream"
+  const blob = new Blob([file.buffer], {
+    type: file.mimetype || "application/octet-stream"
   });
+  form.append("file", blob, file.originalname || "audio.wav");
 
   const {
     return_offsets = "false",
@@ -70,16 +68,20 @@ async function transcribeWithUzbekvoice({ file, options = {} }) {
     form.append("webhook_notification_url", String(webhook_notification_url));
   }
 
-  const response = await axios.post(uzbekvoiceUrl, form, {
+  const response = await fetch(uzbekvoiceUrl, {
+    method: "POST",
     headers: {
-      Authorization: uzbekvoiceAuth,
-      ...form.getHeaders()
+      Authorization: uzbekvoiceAuth
     },
-    maxBodyLength: Infinity,
-    maxContentLength: Infinity
+    body: form
   });
 
-  const raw = response.data || {};
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(text || `STT request failed with ${response.status}`);
+  }
+
+  const raw = await response.json().catch(() => ({}));
   const text = raw.text || raw.transcript || raw.result || raw?.data?.text || "";
 
   return { text, raw };
