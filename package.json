@@ -1,0 +1,23 @@
+{
+  "name": "stt-full",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "build": "npm --prefix client install && npm --prefix client run build",
+    "dev": "npm --prefix server run dev"
+  },
+  "dependencies": {
+    "@google/genai": "^1.44.0",
+    "axios": "^1.13.6",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "form-data": "^4.0.5",
+    "multer": "^2.1.1",
+    "serverless-http": "^3.2.0"
+  }
+}
