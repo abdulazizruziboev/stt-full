@@ -1,7 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 
-const apiBase = import.meta.env.VITE_API_BASE || "";
+const apiBase = (() => {
+  const envBase = import.meta.env.VITE_API_BASE || "";
+  if (typeof window !== "undefined") {
+    const host = window.location.hostname;
+    const isLocalHost = host === "localhost" || host === "127.0.0.1";
+    if (!isLocalHost && envBase.includes("localhost")) {
+      return "";
+    }
+  }
+  return envBase;
+})();
 
 const apiUrl = (path) => {
   if (apiBase) return `${apiBase}${path}`;
