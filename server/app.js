@@ -91,7 +91,33 @@ async function generateWithGemini({ text, systemPrompt }) {
     throw new Error("Missing GEMINI_API_KEY");
   }
 
-  if (!text || typeof text !== "string") {
+  let promptText = text;
+  if (typeof promptText === "string") {
+    const trimmed = promptText.trim();
+    // If text is a JSON string, try to extract nested text fields
+    if ((trimmed.startsWith("{") && trimmed.endsWith("}")) || (trimmed.startsWith("[") && trimmed.endsWith("]"))) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        if (parsed && typeof parsed === "object") {
+          promptText =
+            parsed.text ||
+            parsed.conversation_text ||
+            parsed.result ||
+            trimmed;
+        }
+      } catch {
+        // keep as-is
+      }
+    }
+  } else if (promptText && typeof promptText === "object") {
+    promptText =
+      promptText.text ||
+      promptText.conversation_text ||
+      promptText.result ||
+      "";
+  }
+
+  if (!promptText || typeof promptText !== "string" || !promptText.trim()) {
     throw new Error("Missing text");
   }
 
@@ -100,7 +126,7 @@ async function generateWithGemini({ text, systemPrompt }) {
   if (systemPrompt && typeof systemPrompt === "string") {
     promptParts.push(systemPrompt.trim());
   }
-  promptParts.push(text.trim());
+  promptParts.push(promptText.trim());
 
   const response = await genAI.models.generateContent({
     model: modelName,
