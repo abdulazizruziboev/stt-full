@@ -127,6 +127,20 @@ app.post("/api/stt", upload.single("file"), async (req, res) => {
   }
 });
 
+app.post("/stt", upload.single("file"), async (req, res) => {
+  try {
+    const { text, raw } = await transcribeWithUzbekvoice({
+      file: req.file,
+      options: req.body || {}
+    });
+    res.json({ text, raw });
+  } catch (err) {
+    const message = err?.message || "STT request failed";
+    console.error(err?.response?.data || err);
+    res.status(500).json({ error: message });
+  }
+});
+
 app.post("/api/generate", async (req, res) => {
   try {
     const { text, systemPrompt } = req.body || {};
@@ -139,7 +153,40 @@ app.post("/api/generate", async (req, res) => {
   }
 });
 
+app.post("/generate", async (req, res) => {
+  try {
+    const { text, systemPrompt } = req.body || {};
+    const output = await generateWithGemini({ text, systemPrompt });
+    res.json({ output });
+  } catch (err) {
+    const message = err?.message || "Gemini request failed";
+    console.error(err);
+    res.status(500).json({ error: message });
+  }
+});
+
 app.post("/api/voice-to-gemini", upload.single("file"), async (req, res) => {
+  try {
+    const { systemPrompt = "", language = "uz" } = req.body || {};
+    const { text } = await transcribeWithUzbekvoice({
+      file: req.file,
+      options: { language }
+    });
+
+    if (!text) {
+      return res.status(500).json({ error: "Empty transcript from STT" });
+    }
+
+    const output = await generateWithGemini({ text, systemPrompt });
+    res.json({ text, output });
+  } catch (err) {
+    const message = err?.message || "Voice to Gemini failed";
+    console.error(err?.response?.data || err);
+    res.status(500).json({ error: message });
+  }
+});
+
+app.post("/voice-to-gemini", upload.single("file"), async (req, res) => {
   try {
     const { systemPrompt = "", language = "uz" } = req.body || {};
     const { text } = await transcribeWithUzbekvoice({

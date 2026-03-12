@@ -1,9 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 
-const apiBase =
-  import.meta.env.VITE_API_BASE ||
-  (import.meta.env.PROD ? "/api" : "http://localhost:5174");
+const apiBase = import.meta.env.VITE_API_BASE || "";
+
+const apiUrl = (path) => {
+  if (apiBase) return `${apiBase}${path}`;
+  if (import.meta.env.PROD) return `/api${path}`;
+  return `http://localhost:5174/api${path}`;
+};
 
 const defaultPrompt = `# Role
 You are a Professional Restaurant Voice Order Parser. Your goal is to convert messy, spoken waiter commands into a structured, production-ready JSON format.
@@ -300,7 +304,7 @@ export default function App() {
       sttForm.append("file", blob, "recording.webm");
       sttForm.append("language", "uz");
 
-      const sttRes = await fetch(`${apiBase}/api/stt`, {
+      const sttRes = await fetch(apiUrl("/stt"), {
         method: "POST",
         body: sttForm
       });
@@ -316,7 +320,7 @@ export default function App() {
       );
       setTranscript(sttText);
 
-      const genRes = await fetch(`${apiBase}/api/generate`, {
+      const genRes = await fetch(apiUrl("/generate"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: sttText, systemPrompt: defaultPrompt })
