@@ -118,7 +118,7 @@ async function generateWithGemini({ text, systemPrompt }) {
   }
 
   if (!promptText || typeof promptText !== "string" || !promptText.trim()) {
-    throw new Error("Missing text");
+    return "Mavzudan chiqildi";
   }
 
   const genAI = new GoogleGenAI({ apiKey });
