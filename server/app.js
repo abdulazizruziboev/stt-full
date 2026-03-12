@@ -8,10 +8,10 @@ import FormData from "form-data";
 import multer from "multer";
 import { GoogleGenAI } from "@google/genai";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const filename = fileURLToPath(import.meta.url);
+const dirname = path.dirname(filename);
 
-dotenv.config({ path: path.join(__dirname, ".env") });
+dotenv.config({ path: path.join(dirname, ".env") });
 
 const app = express();
 
