@@ -1,15 +1,10 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import path from "path";
-import { fileURLToPath } from "url";
 import multer from "multer";
 import { GoogleGenAI } from "@google/genai";
 
-const filename = fileURLToPath(import.meta.url);
-const dirname = path.dirname(filename);
-
-dotenv.config({ path: path.join(dirname, ".env") });
+dotenv.config();
 
 const app = express();
 
