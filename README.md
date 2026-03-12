@@ -58,3 +58,28 @@ Notes:
 
 ## Notes
 - Browser recording works best in Chrome/Edge.
+
+## Nginx (self-host)
+1. Build frontend:
+```bash
+cd client
+npm run build
+```
+2. Copy Nginx config:
+```bash
+sudo cp nginx/stt-full.conf /etc/nginx/sites-available/stt-full
+```
+3. Edit `/etc/nginx/sites-available/stt-full`:
+   - `server_name` ni o'zingizning domen/IP ga o'zgartiring
+   - `root` yo'lini serverdagi `client/dist` ga moslang
+4. Enable + reload:
+```bash
+sudo ln -s /etc/nginx/sites-available/stt-full /etc/nginx/sites-enabled/stt-full
+sudo nginx -t
+sudo systemctl reload nginx
+```
+5. Backendni alohida ishga tushiring:
+```bash
+cd server
+npm run dev
+```
